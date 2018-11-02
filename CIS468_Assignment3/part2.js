@@ -15,7 +15,7 @@ function processData(data)
 
 	var stations = [];
 	nyStations.forEach(function(element){
-		stations.push([element.availableDocks, element.availableBikes]);
+		stations.push([element.availableDocks, element.availableBikes, element.district]);
 	});
 
 	createGraph(stations);
@@ -31,12 +31,9 @@ function stationFilter(station)
 
 function createGraph(stations)
 {
-	var width = 800;
-	var height = 500;
+	var width = 1100;
+	var height = 700;
 	var padding = 40;
-
-	var x = max(stations, 0);
-	console.log(x);
 
 	var xScale = d3.scaleLinear()
 		.domain([0, max(stations, 1)])
@@ -51,8 +48,9 @@ function createGraph(stations)
 
 	var svg = d3.select("#part2")
 		.append("svg")
+		.style("position", "center")
 		.attr("width", width)
-		.attr("height", height);
+		.attr("height", height+25);
 
 	svg.selectAll("circle")
 		.data(stations)
@@ -64,8 +62,20 @@ function createGraph(stations)
 		.attr("cy", function(d){
 			return yScale(d[0]);
 		})
-		.attr("r", 2)
-		.attr("fill", "green");
+		.attr("r", 4)
+		.attr("fill", function(d){
+			var dist = parseInt(d[2]);
+
+			if(dist > 400)
+			{
+				return "blue";
+			}
+			else if(dist > 300)
+			{
+				return "red";
+			}
+			return "green"
+		});
 
 	svg.append("g")
 			.attr("class", "x axis")	
@@ -77,6 +87,46 @@ function createGraph(stations)
 			.attr("class", "y axis")	
 			.attr("transform", "translate(" + padding + ", 0)")
 			.call(yAxis);
+
+	//axis label
+	svg.append("text")
+		.attr("y", 10)
+		.attr("x", 55)
+		.attr("dy", "1em")
+		.style("text-anchor", "middle")
+		.attr("tranform", "rotate-90)")
+		.text("Available Docks");
+
+	svg.append("text")
+		.attr("y", height)
+		.attr("x", width/2)
+		.attr("dy", "1em")
+		.style("text-anchor", "middle")
+		.text("Available Bikes");
+
+	var color = [["blue", 20],["red", 50], ["green", 80]];
+	var legend = svg.selectAll(".legend")
+		.data(color)
+		.enter().append("g")
+		.attr("class", "legend")
+	// draw legend colored rectangles
+	legend.append("rect")
+		.attr("x", width - 18)
+		.attr("width", 18)
+		.attr("height", 100)
+		.style("fill", function(d){
+			return d[0];
+		});
+
+	// draw legend text
+	legend.append("text")
+		.attr("x", width - 24)
+		.attr("y", function(d){
+			return d[1];
+		})
+		.attr("dy", ".35em")
+		.style("text-anchor", "end")
+		.text(function(d) { return d[0];})
 }	
 
 function max(stations, x)
@@ -86,7 +136,6 @@ function max(stations, x)
 	{
 		if(parseInt(stations[i][x]) > max)
 		{
-					console.log(stations[i][x])
 			max = parseInt(stations[i][x]);
 		}
 	}
