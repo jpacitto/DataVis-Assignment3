@@ -46,6 +46,7 @@ function createMap2(map, data, divId, projection, width, height)
 	var path2 = d3.geoPath()
 		.projection(projection);
 
+	//create key value pair of district to ratio
 	var distTotal = new Object();
 	data.forEach(function(element)
 	{
@@ -75,6 +76,7 @@ function createMap2(map, data, divId, projection, width, height)
 		distPercent[element] = parseInt(distTotal[element + "bikes"]) / parseInt(distTotal[element + "docks"]); 
 	});
 
+	//draw and color each region individually
 	map.features.forEach(function(element)
 	{
 		mapSVG2.append("path")
